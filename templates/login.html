@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<section class="form-shell narrow">
+  <div class="card">
+    <p class="eyebrow">Welcome back</p>
+    <h1>Login to your account</h1>
+    <form method="post" class="form-grid">
+      <label>Email<input type="email" name="email" required></label>
+      <label>Password<input type="password" name="password" required></label>
+      <button class="button" type="submit">Login</button>
+    </form>
+    <p class="helper">Subscriber signup is available on the subscription page. Admin credentials are listed in the footer.</p>
+  </div>
+</section>
+{% endblock %}

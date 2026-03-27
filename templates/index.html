@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Golf Charity Platform{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Subscription golf with real-world impact</p>
+    <h1>Track your last five rounds, enter monthly prize draws, and fund a charity you believe in.</h1>
+    <p class="lede">This experience is built to feel purposeful first, sporting second. Subscribers join a monthly rewards engine while every active plan contributes to community-focused causes.</p>
+    <div class="hero-actions">
+      <a class="button" href="{{ url_for('signup') }}">Start Subscription</a>
+      <a class="button ghost" href="{{ url_for('charities') }}">Explore Charities</a>
+    </div>
+    <div class="metric-row">
+      <article class="metric"><strong>{{ reports.total_users }}</strong><span>active subscribers tracked</span></article>
+      <article class="metric"><strong>{{ reports.total_prize_pool }}</strong><span>current prize pool estimate</span></article>
+      <article class="metric"><strong>{{ reports.charity_total }}</strong><span>charity allocation across active plans</span></article>
+    </div>
+  </div>
+  {% if featured_charity %}
+  <aside class="hero-panel">
+    <p class="eyebrow">Spotlight Charity</p>
+    <h2>{{ featured_charity.name }}</h2>
+    <p>{{ featured_charity.description }}</p>
+    <p><strong>Upcoming event:</strong> {{ featured_charity.upcoming_event }}</p>
+    <a class="text-link" href="{{ url_for('charity_detail', charity_id=featured_charity.id) }}">View full profile</a>
+  </aside>
+  {% endif %}
+</section>
+
+<section class="section-grid">
+  <article class="card">
+    <p class="eyebrow">How it works</p>
+    <h3>Subscribe monthly or yearly</h3>
+    <p>Choose a plan, select your charity, and unlock score entry, draw participation, and member dashboards.</p>
+  </article>
+  <article class="card">
+    <p class="eyebrow">Score engine</p>
+    <h3>Only your latest five scores count</h3>
+    <p>Stableford scores are validated between 1 and 45, stored with dates, and trimmed automatically to the newest five entries.</p>
+  </article>
+  <article class="card">
+    <p class="eyebrow">Draw engine</p>
+    <h3>Monthly rewards with jackpot rollover</h3>
+    <p>Admins can simulate random or algorithmic draws, publish results monthly, and manage rollover when no 5-match winner appears.</p>
+  </article>
+</section>
+
+<section class="split-section">
+  <div class="card">
+    <p class="eyebrow">Featured charities</p>
+    <div class="stack-list">
+      {% for charity in charities %}
+      <a class="list-item" href="{{ url_for('charity_detail', charity_id=charity.id) }}">
+        <span>{{ charity.name }}</span>
+        <small>{{ charity.country }}</small>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <p class="eyebrow">Latest published draw</p>
+    {% if published_draw %}
+      <h3>{{ published_draw.draw_month }}</h3>
+      <p>Winning numbers: <strong>{{ published_draw.numbers }}</strong></p>
+      <p>Mode: {{ published_draw.mode|title }} draw</p>
+      <p>Rollover amount: {{ published_draw.rollover_amount }}</p>
+    {% else %}
+      <h3>No published draw yet</h3>
+      <p>Use the admin panel to run a simulation and publish the current month’s result.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div>
+    <p class="eyebrow">Need demo data?</p>
+    <h2>Seed sample subscribers, scores, and subscriptions in one click.</h2>
+  </div>
+  <a class="button" href="{{ url_for('seed_demo') }}">Create Demo Data</a>
+</section>
+{% endblock %}

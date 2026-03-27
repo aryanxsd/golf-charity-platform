@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Analytics snapshot</p>
+  <h1>Platform reporting across subscriptions, prize pool, and direct donations.</h1>
+</section>
+<section class="stats-grid">
+  <div class="metric"><strong>{{ reports.total_users }}</strong><span>subscribers</span></div>
+  <div class="metric"><strong>{{ reports.total_prize_pool }}</strong><span>prize pool</span></div>
+  <div class="metric"><strong>{{ reports.charity_total }}</strong><span>subscription charity total</span></div>
+  <div class="metric"><strong>{{ reports.pending_payouts }}</strong><span>pending payouts</span></div>
+</section>
+<section class="card">
+  <p class="eyebrow">Independent donations</p>
+  <div class="stack-list">
+    {% for donation in donations %}
+    <div class="list-item"><span>{{ donation.full_name }} donated {{ donation.amount }} to {{ donation.charity_name }}</span><small>{{ donation.donated_at }}</small></div>
+    {% else %}
+    <p>No direct donations logged yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

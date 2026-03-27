@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Charities{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Charity directory</p>
+  <h1>Search and filter the causes supported by the platform.</h1>
+</section>
+<section class="card">
+  <form method="get" class="form-grid two-col">
+    <label>Search<input type="text" name="search" value="{{ search }}" placeholder="name, tag, mission"></label>
+    <label>Country
+      <select name="country">
+        <option value="">All countries</option>
+        {% for entry in countries %}
+        <option value="{{ entry.country }}" {% if entry.country == country %}selected{% endif %}>{{ entry.country }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="button" type="submit">Apply filters</button>
+  </form>
+</section>
+<section class="section-grid">
+  {% for charity in charities %}
+  <article class="card charity-card">
+    <img src="{{ charity.image_url }}" alt="{{ charity.name }}">
+    <p class="eyebrow">{{ charity.country }}</p>
+    <h3>{{ charity.name }}</h3>
+    <p>{{ charity.description }}</p>
+    <p><strong>Event:</strong> {{ charity.upcoming_event }}</p>
+    <a class="text-link" href="{{ url_for('charity_detail', charity_id=charity.id) }}">View profile</a>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

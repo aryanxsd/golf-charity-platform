@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="page-intro">
+  <p class="eyebrow">Subscriber dashboard</p>
+  <h1>Manage your plan, latest five scores, charity impact, draw entries, and winnings.</h1>
+</section>
+
+<section class="section-grid">
+  <article class="card">
+    <p class="eyebrow">Subscription status</p>
+    {% if subscription %}
+      <h3>{{ subscription.plan|title }} plan active</h3>
+      <p>Renewal date: {{ subscription.end_date }}</p>
+      <p>Restricted access protection is enabled on score and draw features.</p>
+    {% else %}
+      <h3>No active subscription</h3>
+      <p>Your account can sign in, but score entry and draw participation are restricted until you reactivate.</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('update_subscription') }}" class="form-grid">
+      <label>Plan
+        <select name="plan">
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </label>
+      <label>Charity contribution %
+        <input type="number" name="charity_percentage" min="10" value="{{ current_user.charity_percentage }}" required>
+      </label>
+      <label>Select charity
+        <select name="charity_id">
+          {% for charity in charities %}
+          <option value="{{ charity.id }}" {% if selected_charity and selected_charity.id == charity.id %}selected{% endif %}>{{ charity.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="button" type="submit">Update subscription</button>
+    </form>
+    <form method="post" action="{{ url_for('cancel_subscription') }}">
+      <button class="button ghost danger" type="submit">Cancel subscription</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <p class="eyebrow">Your latest 5 scores</p>
+    <form method="post" action="{{ url_for('add_score') }}" class="inline-form">
+      <input type="number" name="score" min="1" max="45" placeholder="Score" required>
+      <input type="date" name="played_at" value="{{ today.isoformat() }}" required>
+      <button class="button small" type="submit">Add score</button>
+    </form>
+    <div class="stack-list">
+      {% for score in scores %}
+      <div class="list-item form-row">
+        <span>{{ score.score }} Stableford on {{ score.played_at }}</span>
+        <form method="post" action="{{ url_for('edit_score', score_id=score.id) }}" class="inline-form">
+          <input type="number" name="score" min="1" max="45" value="{{ score.score }}" required>
+          <input type="date" name="played_at" value="{{ score.played_at }}" required>
+          <button class="button small ghost" type="submit">Save</button>
+        </form>
+      </div>
+      {% else %}
+      <p>No scores yet. Add five rounds to become fully draw-ready.</p>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="card">
+    <p class="eyebrow">Charity impact and donations</p>
+    {% if selected_charity %}
+      <h3>{{ selected_charity.name }}</h3>
+      <p>{{ current_user.charity_percentage }}% of your subscription is routed to this cause.</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('donate') }}" class="form-grid">
+      <label>Independent donation amount<input type="number" name="amount" min="1" step="0.01" required></label>
+      <label>Charity
+        <select name="charity_id">
+          {% for charity in charities %}
+          <option value="{{ charity.id }}">{{ charity.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="button" type="submit">Add donation</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <p class="eyebrow">Participation summary</p>
+    <p>Draws entered: {{ wins|length }}</p>
+    <p>Upcoming draw window: Monthly cadence</p>
+    {% if current_draw_info %}
+      <p>This month already published: {{ current_draw_info.numbers }}</p>
+    {% else %}
+      <p>Current month draw is awaiting admin publish.</p>
+    {% endif %}
+  </article>
+
+  <article class="card">
+    <p class="eyebrow">Winnings overview</p>
+    {% set total = wins | sum(attribute='amount') %}
+    <h3>Total won: {{ "%.2f"|format(total or 0) }}</h3>
+    <div class="stack-list">
+      {% for win in wins %}
+      <div class="list-item">
+        <div>
+          <strong>{{ win.draw_month }}</strong>
+          <p>{{ win.match_count }}-number match | {{ win.amount }} | {{ win.payment_status }}</p>
+        </div>
+        {% if win.verification_status != 'approved' %}
+        <form method="post" action="{{ url_for('upload_winner_proof', winner_id=win.id) }}" enctype="multipart/form-data" class="inline-form">
+          <input type="file" name="proof" accept=".png,.jpg,.jpeg,.pdf" required>
+          <button class="button small" type="submit">Upload proof</button>
+        </form>
+        {% endif %}
+      </div>
+      {% else %}
+      <p>No winnings yet. Keep your scores current to stay in the monthly draw pool.</p>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="card">
+    <p class="eyebrow">Notification log</p>
+    <div class="stack-list">
+      {% for note in notifications %}
+      <div class="list-item"><span>{{ note.subject }}</span><small>{{ note.sent_at }}</small></div>
+      {% else %}
+      <p>No notifications yet.</p>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+{% endblock %}

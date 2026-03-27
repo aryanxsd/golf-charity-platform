@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Subscribe{% endblock %}
+{% block content %}
+<section class="form-shell">
+  <div class="card wide-card">
+    <p class="eyebrow">Join the platform</p>
+    <h1>Start your subscription</h1>
+    <form method="post" class="form-grid two-col">
+      <label>Full name<input type="text" name="full_name" required></label>
+      <label>Email<input type="email" name="email" required></label>
+      <label>Password<input type="password" name="password" minlength="8" required></label>
+      <label>Country code<input type="text" name="country_code" value="IN" maxlength="3" required></label>
+      <label>Plan
+        <select name="plan">
+          <option value="monthly">Monthly - 49</option>
+          <option value="yearly">Yearly - 499</option>
+        </select>
+      </label>
+      <label>Charity contribution %
+        <input type="number" name="charity_percentage" min="10" value="15" required>
+      </label>
+      <label class="full-width">Select charity
+        <select name="charity_id">
+          {% for charity in charities %}
+          <option value="{{ charity.id }}">{{ charity.name }} - {{ charity.country }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="button full-width" type="submit">Create account and activate plan</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

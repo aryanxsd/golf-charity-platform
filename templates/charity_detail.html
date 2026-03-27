@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ charity.name }}{% endblock %}
+{% block content %}
+<section class="detail-hero">
+  <img src="{{ charity.image_url }}" alt="{{ charity.name }}">
+  <div class="card">
+    <p class="eyebrow">{{ charity.country }}</p>
+    <h1>{{ charity.name }}</h1>
+    <p>{{ charity.description }}</p>
+    <p><strong>Tags:</strong> {{ charity.tags }}</p>
+    <p><strong>Upcoming event:</strong> {{ charity.upcoming_event }}</p>
+    <a class="button" href="{{ url_for('signup') }}">Subscribe and support this charity</a>
+  </div>
+</section>
+{% endblock %}
