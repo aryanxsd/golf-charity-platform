@@ -139,7 +139,8 @@ def init_db() -> None:
             ("Platform Admin", "admin@golfcharity.local", generate_password_hash("admin12345"), MIN_CHARITY_PERCENT, "IN"),
         )
 
-    charities_count = db.execute("SELECT COUNT(*) FROM charities").fetchone()[0]
+    charity_count_row = db.execute("SELECT COUNT(*) AS count FROM charities").fetchone()
+    charities_count = charity_count_row["count"] if using_postgres() else charity_count_row[0]
     if charities_count == 0:
         charities = [
             (
