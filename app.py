@@ -177,7 +177,11 @@ def init_db() -> None:
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """
         )
-        db.executemany(charity_insert, charities)
+        if using_postgres():
+            with db.cursor() as cur:
+                cur.executemany(charity_insert, charities)
+        else:
+            db.executemany(charity_insert, charities)
 
     db.commit()
     db.close()
