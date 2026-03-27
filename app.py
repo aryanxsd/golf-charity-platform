@@ -4,6 +4,7 @@ import os
 import random
 import sqlite3
 from collections import Counter
+from decimal import Decimal
 from datetime import date, datetime, timedelta
 from functools import wraps
 from pathlib import Path
@@ -56,6 +57,12 @@ def _normalize_query(query: str) -> str:
 
 def _dict_rows(rows: list) -> list[dict]:
     return [dict(row) for row in rows]
+
+
+def to_decimal(value) -> Decimal:
+    if isinstance(value, Decimal):
+        return value
+    return Decimal(str(value))
 
 
 def get_db():
@@ -320,7 +327,8 @@ def current_draw() -> sqlite3.Row | None:
 
 def compute_prize_pool() -> dict[int, float]:
     active_subs = query_all("SELECT price FROM subscriptions WHERE status = 'active'")
-    total_prize_pool = sum(row["price"] for row in active_subs) * (PRIZE_POOL_PERCENT / 100)
+    total_revenue = sum((to_decimal(row["price"]) for row in active_subs), Decimal("0"))
+    total_prize_pool = total_revenue * (Decimal(PRIZE_POOL_PERCENT) / Decimal("100"))
     return {match_count: round(total_prize_pool * share, 2) for match_count, share in DRAW_SHARE_BY_MATCH.items()}
 
 
@@ -395,8 +403,12 @@ def evaluate_draw(numbers: list[int], publish: bool, mode: str) -> dict:
 def reports_snapshot() -> dict:
     total_users = query_one("SELECT COUNT(*) AS count FROM users WHERE role = 'subscriber'")["count"]
     active_subs = query_all("SELECT price, charity_percent FROM subscriptions WHERE status = 'active'")
-    total_prize_pool = round(sum(row["price"] for row in active_subs) * (PRIZE_POOL_PERCENT / 100), 2)
-    charity_total = round(sum(row["price"] * (row["charity_percent"] / 100) for row in active_subs), 2)
+    total_revenue = sum((to_decimal(row["price"]) for row in active_subs), Decimal("0"))
+    total_prize_pool = round(total_revenue * (Decimal(PRIZE_POOL_PERCENT) / Decimal("100")), 2)
+    charity_total = round(
+        sum((to_decimal(row["price"]) * (Decimal(row["charity_percent"]) / Decimal("100")) for row in active_subs), Decimal("0")),
+        2,
+    )
     total_draws = query_one("SELECT COUNT(*) AS count FROM draws WHERE status = 'published'")["count"]
     pending_payouts = query_one("SELECT COUNT(*) AS count FROM winners WHERE payment_status = 'pending'")["count"]
     return {
